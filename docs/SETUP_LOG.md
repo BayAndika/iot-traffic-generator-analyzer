@@ -16,11 +16,11 @@
 | Model Raspberry Pi | Raspberry Pi 3 Model B | `cat /proc/device-tree/model` |
 | Hostname Pi | ragoon-broker | `hostname` |
 | User Pi | ragoon | - |
-| Versi Raspberry Pi OS | ____ | `cat /etc/os-release` |
+| Versi Raspberry Pi OS | Debian GNU/Linux 13 (trixie), versi 13.7 | `cat /etc/os-release` |
 | Kernel Pi | 6.18.50+rpt-rpi-v8 | `uname -r` |
 | IP Pi | 192.168.10.199 | `hostname -I` |
-| Versi Mosquitto | ____ | `mosquitto -h` |
-| Versi tcpdump (Pi) | ____ | `tcpdump --version` |
+| Versi Mosquitto | 2.0.21 | `mosquitto -h` |
+| Versi tcpdump (Pi) | 4.99.5 (libpcap 1.10.5, TPACKET_V3, OpenSSL 3.5.7) | `tcpdump --version` |
 | Model MikroTik | switch1 (Atheros 8227) | `/system resource print` |
 | Versi RouterOS | 7.16.2 | `/system resource print` |
 
@@ -37,7 +37,7 @@
 | Versi Wireshark | 4.6.9 (dari metadata capture Dumpcap) | Help → About |
 | Versi Npcap | ____ | Wireshark → Help → About → Folders |
 | Versi Python | ____ (target 3.12) | `python --version` |
-| Versi Git | ____ | `git --version` |
+| Versi Git | 2.34.1 (di WSL Ubuntu 22.04) | `git --version` |
 | Interface laptop ke port mirror | Ethernet (Realtek Gaming GbE), tersambung ke ether3 | Wireshark → Capture → Options |
 
 ---
