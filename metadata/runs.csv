@@ -1,2 +1,2 @@
-run_id,jalur,skenario,ulang,file_pcap,filter,interface,waktu_mulai,waktu_selesai,durasi_detik,packets_captured,packets_receive_by_filter,packets_dropped_by_kernel,sha256,catatan
+run_id,jalur,skenario,ulang,file_pcap,filter,interface,waktu_mulai,waktu_selesai,durasi_detik,packets_captured,packets_received_by_filter,packets_dropped_by_kernel,sha256,catatan
 pilot_mqtt,pilot,pilot,1,pilot_mqtt.pcap,tcp port 1883,eth0,,,,,,,,pilot uji pipeline - bukan dataset
