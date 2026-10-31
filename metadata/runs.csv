@@ -1,2 +1,3 @@
 run_id,jalur,skenario,ulang,file_pcap,filter,interface,waktu_mulai,waktu_selesai,durasi_detik,packets_captured,packets_received_by_filter,packets_dropped_by_kernel,sha256,catatan
 pilot_mqtt,pilot,pilot,1,pilot_mqtt.pcap,tcp port 1883,eth0,,,,,,,,pilot uji pipeline - bukan dataset
+S1_normal_run1,tiga,S1_normal,1,S1_normal_run1.pcap,tcp port 1883 or udp port 5683 or tcp port 80,eth0,tidak_tercatat,tidak_tercatat,600,2193,2193,tidak_tercatat,73ec9dc08a6c5bd916e8c11c8d88b2206b6b919260fa60813e09df02eee6c30a,dihitung ulang dari file pcap. waktu dan dropped tidak tercatat
