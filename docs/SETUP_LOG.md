@@ -56,30 +56,38 @@
 
 Setiap IP dicocokkan dengan MAC address di MikroTik atau di laptop. IP dari DHCP dapat berubah, jadi identifikasi berbasis MAC.
 
-| IP | MAC | Host name | Identitas | Dikonfirmasi dengan |
-|---|---|---|---|---|
-| 192.168.12.234 | E0:8C:FE:5D:03:68 | esp32-5D0368 | ESP32, ESP#1 (MQTT, topik `sensor/node1/fc28`) | MikroTik lease + tcpdump di Pi (publish berkala terlihat) |
-| 192.168.11.253 | 08:97:98:7E:AF:CA | NITRO-5 | Laptop, pengirim pilot MQTT awal (bukan ESP) | `ipconfig /all` dan MikroTik lease |
-| 192.168.12.236 | ____ | ____ | Dugaan ESP#2 (CoAP PUT `/motion`) | ____ |
-| 192.168.12.242 | ____ | ____ | Dugaan ESP#3 (HTTP POST `/api/sensor/http`) | ____ |
-| 192.168.12.251 | ____ | ____ | Dugaan laptop (sesi lama) | ____ |
-| 192.168.12.238 | ____ | ____ | Dugaan laptop (sesi lama) | ____ |
+| IP | MAC | Host name | Identitas | Status lease | Dikonfirmasi dengan |
+|---|---|---|---|---|---|
+| 192.168.12.234 | E0:8C:FE:5D:03:68 | esp32-5D0368 | ESP32, ESP#1 (MQTT, topik `sensor/node1/fc28`) | bound | MikroTik lease + tcpdump di Pi (publish berkala terlihat) |
+| 192.168.12.233 | E0:8C:FE:5C:95:.. | esp32-5C9548 | ESP32, ESP#3 (HTTP, port 80) | bound | Label MikroTik + trafik port 80 dari IP ini |
+| 192.168.12.236 | E0:8C:FE:5C:75:.. | esp32-5C7500 | ESP32, ESP#2 (CoAP, port 5683) | waiting | Label MikroTik saja. Tidak ada paket UDP 5683 dari IP ini |
+| 192.168.11.253 | 08:97:98:7E:AF:CA | NITRO-5 | Laptop, pengirim pilot MQTT awal (bukan ESP) | - | `ipconfig /all` dan MikroTik lease |
+| 192.168.12.242 | ____ | ____ | Dugaan ESP#3 dari capture HTTP sebelumnya, sekarang tidak terpakai | ____ | Belum dikonfirmasi |
+| 192.168.12.251 | ____ | ____ | Dugaan laptop (sesi lama) | ____ | Belum dikonfirmasi |
+| 192.168.12.238 | ____ | ____ | Dugaan laptop (sesi lama) | ____ | Belum dikonfirmasi |
 
-**Catatan:** IP `192.168.12.236`, `.242`, `.251`, dan `.238` berasal dari capture sesi sebelumnya. Belum ada MAC yang dikonfirmasi untuk keempatnya.
+**Catatan:**
+- IP HTTP berubah dari `.242` (capture lama) menjadi `.233` (label MikroTik dan trafik port 80 saat ini).
+- IP CoAP `.236` tercatat dari capture lama. Sekarang lease-nya `waiting`, sehingga ESP#2 belum tersambung ke jaringan.
+- Kolom `LAST-SEEN` di MikroTik tidak dipakai sebagai indikator aktivitas. Yang dipakai adalah status lease dan trafik di Pi.
 
 ---
 
 ## 4. Layanan di Raspberry Pi
 
-| Layanan | Port | Status | Keterangan |
-|---|---|---|---|
-| Mosquitto (MQTT) | TCP 1883 | Aktif | `listener 0.0.0.0:1883`, `allow_anonymous true` (hanya jaringan uji) |
-| Server CoAP | UDP 5683 | Berjalan manual | `~/coap-server/server.py`, belum dijadikan service (perlu tmux atau systemd) |
-| Server HTTP | TCP 80 | Berjalan manual | `~/coap-server/http_server.py`, belum dijadikan service |
+| Layanan | Port | Status | Proses | Keterangan |
+|---|---|---|---|---|
+| Mosquitto (MQTT) | TCP 1883 | Aktif | mosquitto (systemd) | `listener 0.0.0.0:1883`, `allow_anonymous true` (hanya jaringan uji) |
+| Server CoAP | UDP 5683 dan TCP 5683 | Aktif (manual) | PID 2703, `python server.py` | Listener TCP 5683 kemungkinan bawaan library. Satu instance saja setelah membersihkan proses ganda. Belum di tmux atau systemd |
+| Server HTTP | TCP 80 | Aktif (manual) | PID 1803, `http_server.py` (python) | Listen 0.0.0.0:80. Proses terkait: PID 1797 dan 1802 (sudo wrapper). Belum di tmux atau systemd |
 
 **Status respons saat uji:**
-- CoAP PUT `/motion`: awalnya 4.05 Method Not Allowed, sekarang 2.04 Changed (setelah perbaikan server).
-- HTTP POST `/api/sensor/http`: awalnya 404, status sekarang ____. Harus 200 sebelum run tiga protokol.
+- CoAP PUT `/motion`: awalnya 4.05 Method Not Allowed, lalu 2.04 Changed setelah perbaikan server. Uji manual ke `coap://127.0.0.1/motion` menghasilkan kode respons `44` (2.04 Changed), payload `OK`.
+- HTTP POST `/api/sensor/http`: awalnya 404. Status sekarang ____. Harus 200 sebelum run tiga protokol.
+
+**Catatan operasional:**
+- Server dijalankan manual. Jika sesi SSH ditutup, proses bisa ikut mati. Sebelum run resmi, pastikan prosesnya masih hidup dengan `pgrep -af server.py` dan `sudo ss -tulnp | grep -E ':80 |5683'`.
+- `localhost` di-resolve ke IPv6 (`::1`) sedangkan server aktif di IPv4. Uji lokal memakai `127.0.0.1`.
 
 ---
 
@@ -129,6 +137,8 @@ ragoon ALL=(root) NOPASSWD: /usr/sbin/tcpdump
 - Selama run resmi, laptop tidak mengirim trafik MQTT (`mosquitto_pub` dan `mosquitto_sub` dihentikan).
 - Trafik ESP ke Pi dirutekan MikroTik. Pi tetap menjadi sumber utama dataset, mirror menjadi sumber verifikasi.
 - Topik baseline ESP#1 adalah `sensor/node1/fc28`.
+- Identifikasi perangkat dilakukan lewat MAC address dan status lease, bukan IP saja.
+- Selama CoAP belum `bound` dan mengirim data selain `{"test":1}`, CoAP tidak masuk dataset. Jalur B tetap berjalan.
 
 ---
 
@@ -144,9 +154,12 @@ ragoon ALL=(root) NOPASSWD: /usr/sbin/tcpdump
 | ____ | `mqtt_publish.log` untuk `test/capture` | ____ |
 | ____ | Pilot MQTT (2 menit) dengan `tcp port 1883` dari laptop | conn.log memuat 1883, service `mqtt` |
 | ____ | Respons HTTP 200 (`curl -i -X POST`) | ____ |
-| ____ | Respons CoAP 2.04 (`aiocoap-client`) | ____ |
+| 29 Okt 2026 | Respons CoAP 2.04 dari uji lokal (`aiocoap-client` ke `127.0.0.1`) | Kode `44` (2.04 Changed), payload `OK`, dibaca dari `tcpdump -i lo -X` |
 | 29 Okt 2026 | Pilot ESP#1 (192.168.12.234), 120 detik, filter `tcp port 1883` | conn.log: 1 koneksi persisten 115 detik. mqtt_publish.log: 24 publish |
 | 29 Okt 2026 | Verifikasi port mirror dengan trafik ESP (`ip.addr == 192.168.12.234 && tcp.port == 1883`) | Publish dan keep-alive ESP terlihat di laptop |
+| 29 Okt 2026 | Hitung UDP 5683 dari 192.168.12.236, 60 detik (dua arah, `wc -l`) | Hasil 1. Tidak valid karena menghitung balasan server. Tidak dijadikan bukti |
+| 29 Okt 2026 | Hitung UDP 5683 dari 192.168.12.236, 120 detik (`src host`, `-tt`) | Tidak ada paket. ESP#2 tidak mengirim dari IP ini |
+| 29 Okt 2026 | Lease ESP#2 (`E0:8C:FE:5C:75:..`) di MikroTik | `waiting`. Tidak tersambung jaringan saat tes |
 | 29 Okt 2026 | Pengecekan duplikasi mirror (60 detik) | **Belum dilakukan** |
 | ____ | Ping laptop ke Pi, ICMP di Wireshark | Tidak dijadikan bukti (lihat bagian 5) |
 
@@ -184,7 +197,8 @@ ragoon ALL=(root) NOPASSWD: /usr/sbin/tcpdump
 - **Interface Wireshark remote `ragoon-broker` tidak dipakai.** Dialog RPCAP menghasilkan error 10054 karena Pi tidak menjalankan `rpcapd`.
 - **Percobaan ganti password MikroTik** gagal karena password baru sama dengan yang lama. Password perlu diganti dengan nilai yang berbeda. Nilainya tidak dicatat di dokumen ini.
 - **Dokumen proposal dan diagram** masih memuat `192.168.1.1` dan Raspberry Pi 4 di beberapa bagian. Perlu diselaraskan dengan kondisi sekarang (192.168.10.199 dan Raspberry Pi 3 Model B).
-- **IP laptop berubah antar sesi** (`.236`, `.238`, `.251`, `.253`). Kolom IP sumber di dataset dicatat per sesi.
+- **IP laptop dan ESP berubah antar sesi.** Laptop tercatat di `.236`, `.238`, `.251`, `.253`. HTTP tercatat di `.242` dan `.233`. Kolom IP sumber di dataset dicatat per sesi, dan identitas selalu dicocokkan dengan MAC.
+- **Pesan `Data Masuk: {"test":1}` di server CoAP** berasal dari uji manual, bukan dari ESP#2.
 
 ---
 
@@ -193,9 +207,14 @@ ragoon ALL=(root) NOPASSWD: /usr/sbin/tcpdump
 - [ ] Pengecekan duplikasi mirror (Wireshark vs tcpdump, 60 detik, filter sama)
 - [ ] Arah mirror dicatat (ingress / egress / keduanya)
 - [ ] Ruang disk Pi dicek (`df -h ~`, minimal 2 GB tersisa)
-- [ ] Server CoAP dan HTTP dijalankan sebagai service (tmux atau systemd)
-- [ ] Respons HTTP 200 terverifikasi
-- [ ] MAC dan identitas 192.168.12.236, .242, .251, dan .238 dikonfirmasi
+- [x] Server CoAP aktif dan satu instance saja (PID 2703)
+- [x] Server HTTP mendengarkan port 80 (PID 1803)
+- [ ] Server CoAP dan HTTP dijalankan di tmux atau systemd
+- [ ] Respons HTTP 200 terverifikasi (`curl -i -X POST`)
+- [ ] ESP#2 (`E0:8C:FE:5C:75:..`) lease `bound`, dan mengirim CoAP dengan isi selain `{"test":1}`
+- [ ] ESP#3 (`E0:8C:FE:5C:95:..`, IP `.233`) mengirim HTTP dengan respons 200
+- [ ] MAC dan identitas 192.168.12.242, .251, dan .238 dikonfirmasi, atau dicatat sebagai tidak dipakai
+- [ ] Lease ESP#1, ESP#2, dan ESP#3 diubah menjadi static di MikroTik
 - [ ] Durasi S1 sampai S6 disepakati dengan Aslan
 - [ ] Ambang kriteria anomali disepakati dengan Aslan
 - [ ] Penjelasan frame 176 byte di capture
