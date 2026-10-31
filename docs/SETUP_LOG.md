@@ -3,7 +3,7 @@
 **Proyek:** IoT Traffic Generator & Analyzer
 **Peran:** Network Capture & Dataset Engineer
 **Pemilik catatan:** Bayu Andika Wibisono
-**Terakhir diperbarui:** 29 Oktober 2026
+**Terakhir diperbarui:** 1 November 2026
 
 > Aturan pengisian: nilai yang belum diketahui tetap `____`. Jangan diisi dengan perkiraan. Setiap perubahan konfigurasi dicatat dengan tanggal dan alasannya.
 
@@ -34,11 +34,11 @@
 | Versi WSL | 2 | `wsl -l -v` |
 | Distro WSL | Ubuntu-22.04 | `lsb_release -a` |
 | Versi Zeek | 9.0.0 | `zeek --version` |
-| Versi Wireshark | ____ (Dumpcap 4.6.9 terlihat di metadata capture) | Help → About |
+| Versi Wireshark | 4.6.9 (dari metadata capture Dumpcap) | Help → About |
 | Versi Npcap | ____ | Wireshark → Help → About → Folders |
 | Versi Python | ____ (target 3.12) | `python --version` |
 | Versi Git | ____ | `git --version` |
-| Nama interface laptop ke port mirror | Ethernet (Realtek Gaming GbE, ether3) | Wireshark → Capture → Options |
+| Interface laptop ke port mirror | Ethernet (Realtek Gaming GbE), tersambung ke ether3 | Wireshark → Capture → Options |
 
 ---
 
@@ -65,10 +65,11 @@ Setiap IP dicocokkan dengan MAC address di MikroTik atau di laptop. IP dari DHCP
 | 192.168.12.242 | ____ | ____ | Dugaan ESP#3 dari capture HTTP lama, sekarang tidak terpakai | ____ | Belum dikonfirmasi |
 | 192.168.12.251 | ____ | ____ | Dugaan laptop (sesi lama) | ____ | Belum dikonfirmasi |
 | 192.168.12.238 | ____ | ____ | Dugaan laptop (sesi lama) | ____ | Belum dikonfirmasi |
+| 192.168.11.254 dan 192.168.12.254 | B8:27:EB:CB:6A:9C dan B8:27:EB:9E:3F:C9 | ragoon-broker | Lease `waiting` lama dari interface Pi yang tidak aktif | waiting | `/ip dhcp-server lease print` (1 Nov 2026). Jangan dihapus sebelum dicek |
 
 **Catatan:**
 - IP HTTP berubah dari `.242` (capture lama) menjadi `.233` (label MikroTik dan trafik port 80 saat ini).
-- IP CoAP `.236` tercatat dari capture lama. Lease-nya `waiting`, sehingga ESP#2 belum tersambung ke jaringan.
+- IP CoAP `.236` tercatat dari capture lama. Sempat `waiting` (29 Okt), lalu kembali `bound` dan static (1 Nov).
 - Kolom `LAST-SEEN` di MikroTik tidak dipakai sebagai indikator aktivitas. Yang dipakai adalah status lease dan trafik di Pi.
 
 ---
@@ -78,18 +79,20 @@ Setiap IP dicocokkan dengan MAC address di MikroTik atau di laptop. IP dari DHCP
 | Layanan | Port | Status | Proses | Keterangan |
 |---|---|---|---|---|
 | Mosquitto (MQTT) | TCP 1883 | Aktif | PID 1301 (systemd) | `listener 0.0.0.0:1883`, `allow_anonymous true` (hanya jaringan uji) |
-| Server CoAP | UDP 5683 dan TCP 5683 | Aktif (manual) | PID 2911, `python server.py` | Listener TCP 5683 kemungkinan bawaan library. Satu instance saja. Sempat restart (PID sebelumnya 2703). Belum di tmux atau systemd |
-| Server HTTP | TCP 80 | Aktif (manual) | PID 1803, `http_server.py` (python) | Listen 0.0.0.0:80. Proses terkait: PID 1797 dan 1802 (sudo wrapper). Belum di tmux atau systemd |
+| Server CoAP | UDP 5683 dan TCP 5683 | Aktif (tmux sesi `coap`) | PID 4538, `python server.py` | Listener TCP 5683 kemungkinan bawaan library. Dicek 1 Nov 2026 |
+| Server HTTP | TCP 80 | Aktif (tmux sesi `http`, sudo) | PID 4585, `http_server.py` | Listen 0.0.0.0:80. Dicek 1 Nov 2026 |
 
 **Status respons saat uji:**
 - CoAP PUT `/motion`: awalnya 4.05 Method Not Allowed, lalu 2.04 Changed setelah perbaikan server. Uji manual ke `coap://127.0.0.1/motion` menghasilkan kode respons `44` (2.04 Changed), payload `OK`.
-- HTTP POST `/api/sensor/http`: awalnya 404. Status sekarang ____. Harus 200 sebelum run tiga protokol.
+- HTTP POST `/api/sensor/http`: awalnya 404, lalu 200 OK (curl, 29 Okt 2026, payload `{"status":"ok"}`).
 
 **Catatan operasional:**
-- Server dijalankan manual. Jika sesi SSH ditutup, proses bisa ikut mati. Sebelum run resmi, pastikan prosesnya masih hidup dengan `pgrep -af server.py` dan `sudo ss -tulnp | grep -E ':80 |5683'`.
+- Server CoAP dan HTTP dijalankan di tmux. Sesi `coap` dan `http` tetap hidup walau SSH ditutup. Masuk lagi dengan `tmux attach -t coap` atau `tmux attach -t http`. Keluar tanpa mematikan server: Ctrl+B lalu D.
+- Server HTTP memakai `sudo ./venv/bin/python http_server.py`, karena port 80 butuh root dan Python dari venv harus dipakai langsung.
+- Sebelum run resmi, cek `tmux ls` dan `sudo ss -tulnp | grep -E '1883|5683|:80 '`.
 - `localhost` di-resolve ke IPv6 (`::1`) sedangkan server aktif di IPv4. Uji lokal memakai `127.0.0.1`.
+- Pi belum bisa `apt install` karena DNS. Ping `8.8.8.8` berhasil, tapi nama domain gagal. Penyebab: MikroTik DNS tidak mengizinkan remote request. Perbaikan: aktifkan **Allow Remote Requests** di `/ip dns`. Belum dicatat sebagai selesai.
 
-- 1 Nov 2026 (server dipindah ke tmux): Mosquitto PID 1301 (TCP 1883). Server CoAP PID 4538 di tmux sesi `coap` (UDP dan TCP 5683). Server HTTP PID 4585 di tmux sesi `http` (TCP 80). PID lama 2911 dan 1803 sudah dihentikan.
 ---
 
 ## 5. Konfigurasi
@@ -136,7 +139,8 @@ ragoon ALL=(root) NOPASSWD: /usr/sbin/tcpdump
 - Dataset final hanya memakai satu jalur. Run tiga protokol tidak dicampur dengan run MQTT saja.
 - Durasi S1 sementara 600 detik. Menunggu persetujuan Aslan.
 - Pemetaan skenario: S1 traffic normal, S2 connection burst, S3 abnormal publishing/request, S4 abnormal subscription/observe/polling, S5 abnormal topic/resource/endpoint, S6 traffic campuran. Mengikuti Rencana Pengujian di proposal. Persetujuan Aslan: ____
-- Setiap run diberi nomor ulang. Run yang gagal tidak ditimpa.
+- Setiap run diberi nomor ulang. Run yang gagal tidak ditimpa, tetap tercatat di `runs.csv` dengan status GAGAL.
+- Run dianggap valid jika: hash Pi dan WSL sama, ketiga protokol lebih dari 0 paket, dan `dropped by kernel` = 0.
 - Interface capture tetap `eth0`. Jika berubah, catat di sini dan buat run baru.
 - Timeline dashboard bersifat offline, bukan real-time.
 - Sumber baseline MQTT adalah ESP#1 (192.168.12.234). Pilot awal dari laptop hanya untuk menguji pipeline, bukan baseline.
@@ -147,6 +151,7 @@ ragoon ALL=(root) NOPASSWD: /usr/sbin/tcpdump
 - Selama CoAP belum `bound` dan mengirim data selain `{"test":1}`, CoAP tidak masuk dataset.
 - Pelabelan: S1 seluruhnya normal. Skenario S2 sampai S5 seluruhnya anomali. S6 dilabeli per jendela berdasarkan `metadata/anomali_interval.csv`.
 - Ukuran jendela pelabelan 5 detik, sama untuk semua run.
+- S2 tidak dijalankan sebelum generator burst diuji Farel dan pilot 2 menit menunjukkan kenaikan jumlah koneksi dibanding S1.
 
 ---
 
@@ -161,18 +166,18 @@ ragoon ALL=(root) NOPASSWD: /usr/sbin/tcpdump
 | ____ | `frame contains "halo"` di Wireshark | Ditemukan pada paket publish |
 | ____ | `mqtt_publish.log` untuk `test/capture` | ____ |
 | ____ | Pilot MQTT (2 menit) dengan `tcp port 1883` dari laptop | conn.log memuat 1883, service `mqtt` |
-| ____ | Respons HTTP 200 (`curl -i -X POST`) | ____ |
+| 29 Okt 2026 | Respons HTTP 200 (`curl -i -X POST`) | 200 OK, `{"status":"ok"}` |
 | 29 Okt 2026 | Respons CoAP 2.04 dari uji lokal (`aiocoap-client` ke `127.0.0.1`) | Kode `44` (2.04 Changed), payload `OK`, dibaca dari `tcpdump -i lo -X` |
 | 29 Okt 2026 | Pilot ESP#1 (192.168.12.234), 120 detik, filter `tcp port 1883` | conn.log: 1 koneksi persisten 115 detik. mqtt_publish.log: 24 publish |
 | 29 Okt 2026 | Verifikasi port mirror dengan trafik ESP (`ip.addr == 192.168.12.234 && tcp.port == 1883`) | Publish dan keep-alive ESP terlihat di laptop |
-| 29 Okt 2026 | Hitung UDP 5683 dari 192.168.12.236, 60 detik (dua arah, `wc -l`) | Hasil 1. Tidak valid karena menghitung balasan server. Tidak dijadikan bukti |
-| 29 Okt 2026 | Hitung UDP 5683 dari 192.168.12.236, 120 detik (`src host`, `-tt`) | Tidak ada paket. ESP#2 tidak mengirim dari IP ini |
-| 29 Okt 2026 | Lease ESP#2 (`E0:8C:FE:5C:75:..`) di MikroTik | `waiting`. Tidak tersambung jaringan saat tes |
+| 29 Okt 2026 | Hitung UDP 5683 dari 192.168.12.236, 60 detik (dua arah, `wc -l`) | Hasil 1. Tidak valid karena menghitung balasan server |
+| 29 Okt 2026 | Hitung UDP 5683 dari 192.168.12.236, 120 detik (`src host`, `-tt`) | Tidak ada paket. ESP#2 tidak mengirim saat itu |
+| 29 Okt 2026 | Lease ESP#2 (`E0:8C:FE:5C:75:..`) di MikroTik | `waiting` saat tes. Kemudian `bound` static |
 | 29 Okt 2026 | Pengecekan duplikasi mirror (60 detik) | Lulus. Laju 0,63 vs 0,69 paket/detik. Detail di bagian 5 |
-| 29 Okt 2026 | Cek layanan Pi sebelum S1 | Mosquitto PID 1301, HTTP PID 1803, CoAP PID 2911 |
-| ____ | Ping laptop ke Pi, ICMP di Wireshark | Tidak dijadikan bukti (lihat bagian 5) |
-
+| 29 Okt 2026 | Tiga gerbang tiga protokol (HTTP 200, ESP#3 port 80, ESP#2 UDP 5683, data sensor diterima, lease static) | Lulus. ESP#3 165 paket, ESP#2 25 paket per 120 detik |
+| 1 Nov 2026 | Ulang cek UDP 5683 dari 192.168.12.236, 60 detik (`src host`) | 13 paket. ESP#2 mengirim |
 | 1 Nov 2026 | Pilot tiga protokol 120 detik, filter `tcp port 1883 or udp port 5683 or tcp port 80` | tcpdump: 430 captured, 440 received by filter, 0 dropped. Per protokol: MQTT 80, CoAP 48, HTTP 302 paket. Zeek conn.log: 1883 (1 koneksi), 5683 (1 flow), 80 (24 koneksi). Lulus |
+| 1 Nov 2026 | Ping laptop ke Pi, ICMP di Wireshark | Tidak dijadikan bukti (lihat bagian 5) |
 
 ---
 
@@ -184,7 +189,7 @@ ragoon ALL=(root) NOPASSWD: /usr/sbin/tcpdump
 | Broker | 192.168.10.199:1883 | Konfigurasi firmware |
 | Topik | `sensor/node1/fc28` | Wireshark |
 | Interval publish | Sekitar 5 detik (terlihat 7005, 7010, 7015, 7020, 7025 pada capture) | Wireshark |
-| Ukuran frame publish | 141 byte (total frame di Wire) | Wireshark |
+| Ukuran frame Ethernet publish | 141 byte | Wireshark |
 | Ukuran payload TCP | 87 byte | tcpdump |
 | Keep-alive | PINGREQ 60 byte dan PINGRESP 60 byte, di antara publish. Interval belum diukur | Wireshark |
 | Pola koneksi | Satu koneksi persisten (pilot 115 detik, 24 publish) | conn.log |
@@ -206,41 +211,59 @@ ragoon ALL=(root) NOPASSWD: /usr/sbin/tcpdump
   - Laptop (pilot awal): setiap publish membuka koneksi baru, sekitar 3 ms per koneksi.
   - ESP32 (192.168.12.234): satu koneksi persisten, publish berkala.
 - **Interface Wireshark remote `ragoon-broker` tidak dipakai.** Dialog RPCAP menghasilkan error 10054 karena Pi tidak menjalankan `rpcapd`.
-- **Percobaan ganti password MikroTik** gagal karena password baru sama dengan yang lama. Password perlu diganti dengan nilai yang berbeda. Nilainya tidak dicatat di dokumen ini.
+- **Password MikroTik** sudah diganti. Nilainya tidak dicatat di dokumen ini.
 - **Dokumen proposal dan diagram** masih memuat `192.168.1.1` dan Raspberry Pi 4 di beberapa bagian. Perlu diselaraskan dengan kondisi sekarang (192.168.10.199 dan Raspberry Pi 3 Model B).
 - **IP laptop dan ESP berubah antar sesi.** Laptop tercatat di `.236`, `.238`, `.251`, `.253`. HTTP tercatat di `.242` dan `.233`. Kolom IP sumber di dataset dicatat per sesi, dan identitas selalu dicocokkan dengan MAC.
 - **Pesan `Data Masuk: {"test":1}` di server CoAP** berasal dari uji manual, bukan dari ESP#2.
 - **Port mirror routed:** trafik ESP ke Pi dirutekan MikroTik. Dari uji Wireshark, paket ESP tetap terlihat di ether3, tetapi cakupannya hanya dianggap valid setelah pengecekan jumlah dan arah.
+- **Run 2 gagal** karena ESP#2 tidak mengirim (lease sempat hilang). Run 2b diulang setelah lease static dan ESP#2 terbukti mengirim.
+- **Run 1 dan run 2b punya hasil Zeek identik** (2 / 1 / 119). Itu mungkin wajar, tapi belum dicek dengan timestamp pertama `conn.log` di folder `S1_normal_run2b`.
 
 ---
 
 ## 10. Yang belum dikerjakan
 
+**Sudah selesai:**
 - [x] Pengecekan duplikasi mirror (lulus, 29 Okt 2026)
 - [x] Ruang disk Pi dicek (Avail 104G)
-- [x] Server CoAP aktif dan satu instance saja (PID 2911)
-- [x] Server HTTP mendengarkan port 80 (PID 1803)
 - [x] Mosquitto aktif (PID 1301)
+- [x] Server CoAP dan HTTP dipindah ke tmux (1 Nov 2026)
 - [x] Respons HTTP 200 terverifikasi (curl, 29 Okt 2026)
 - [x] ESP#3 mengirim HTTP dengan respons 200
-- [x] ESP#2 mengirim CoAP dan data sensor diterima server (bukan hanya uji manual)
-- [x] Lease ESP#1, ESP#2, dan ESP#3 static (dynamic=no, 29 Okt 2026)
-- [ ] Lease waiting 192.168.11.254 dan 192.168.12.254 (host ragoon-broker) diperiksa dan dihapus jika tidak dipakai
+- [x] ESP#2 mengirim CoAP dan data sensor diterima server
+- [x] Lease ESP#1, ESP#2, dan ESP#3 static (dynamic=no)
+- [x] Pilot tiga protokol 2 menit lulus (1 Nov 2026)
+- [x] Gerbang tiga protokol lulus (29 Okt sampai 1 Nov 2026)
+- [x] S1 run 1, run 2b, dan run 3 valid (lihat bagian 11)
+
+**Belum selesai:**
 - [ ] Arah mirror dicatat (ingress / egress / keduanya)
 - [ ] Penjelasan 28.666 paket tanpa filter di Wireshark (port lain atau flood)
-- [ ] Server CoAP dan HTTP dijalankan di tmux atau systemd
-- [ ] Respons HTTP 200 terverifikasi (`curl -i -X POST`)
-- [ ] ESP#2 (`E0:8C:FE:5C:75:..`) lease `bound`, dan mengirim CoAP dengan isi selain `{"test":1}`
-- [ ] ESP#3 (`E0:8C:FE:5C:95:..`, IP `.233`) mengirim HTTP dengan respons 200
+- [ ] Lease waiting 192.168.11.254 dan 192.168.12.254 diperiksa dan dihapus jika tidak dipakai
+- [ ] DNS Pi: aktifkan Allow Remote Requests di MikroTik agar `apt install` bisa jalan
+- [ ] Timestamp `conn.log` run 2b dicek (apakah benar milik run 2b)
 - [ ] MAC dan identitas 192.168.12.242, .251, dan .238 dikonfirmasi, atau dicatat sebagai tidak dipakai
-- [ ] Lease ESP#1, ESP#2, dan ESP#3 diubah menjadi static di MikroTik
 - [ ] Durasi S1 sampai S6 disepakati dengan Aslan
 - [ ] Ambang kriteria anomali disepakati dengan Aslan
 - [ ] Pemetaan S1 sampai S6 disetujui Aslan dan dosen
 - [ ] Keputusan dataset final (tiga protokol atau fallback MQTT) disetujui dosen
 - [ ] Penjelasan frame 176 byte di capture
-- [x] Pilot tiga protokol 2 menit lulus (1 Nov 2026)
-- [ ] Run S1 resmi (3 kali)
+- [ ] Generator burst S2 diuji Farel dan pilot S2 lolos
+- [ ] Run S2 sampai S6 (masing-masing 3 run)
 - [ ] Skrip ekstraksi, pelabelan, dan validasi dijalankan pada data nyata
 - [ ] Dataset dan validasi 20 persen sampel
 - [ ] Dokumen wajib (PANDUAN_CAPTURE, KEBIJAKAN_FILTER, PANDUAN_LABEL, VALIDASI_LABEL, README dataset, notebook EDA)
+
+---
+
+## 11. Ringkasan run
+
+| Run | Skenario | Ulang | Status | Hash Pi = WSL | Captured | Received by filter | Dropped | MQTT / CoAP / HTTP (paket) | Catatan |
+|---|---|---|---|---|---|---|---|---|---|
+| S1_normal_run1 | S1_normal | 1 | Valid | Ya | 2193 | 2206 | 0 | - | Waktu 01:28:34 sampai 01:39:27 (653 detik nyata). Zeek: 1883 (2), 5683 (1), 80 (119) |
+| S1_normal_run2 | S1_normal | 2 | GAGAL | - | 1951 | 1953 | 0 | 404 / 0 / 1547 | CoAP 0 paket. ESP#2 tidak mengirim. Tidak dipakai |
+| S1_normal_run2b | S1_normal | 2 | Valid, timestamp Zeek belum dicek | Ya | 2189 | 2192 | 0 | 409 / 240 / 1540 | Waktu 04:22:32 sampai 04:32:47 (615 detik nyata). Hash `46f2098d...` |
+| S1_normal_run3 | S1_normal | 3 | Valid | Ya | 2171 | 2171 | 0 | 400 / 240 / 1531 | Waktu 04:46:07 sampai 04:56:32 (625 detik nyata). Hash `4e55b1df...` |
+| S2 sampai S6 | - | - | Belum | - | - | - | - | - | Menunggu generator anomali (Farel dan Aslan) |
+
+**Status S1:** tiga run valid (run 1, run 2b, run 3). Run 2 tetap disimpan sebagai catatan kegagalan.
