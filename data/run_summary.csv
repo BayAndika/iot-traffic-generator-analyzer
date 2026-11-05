@@ -1,0 +1,10 @@
+run_id,protokol,durasi_run_s,total_byte,throughput_Bps,throughput_bps,jumlah_request,interval_rata_s,jitter_s,latency_rata_s,retransmisi_tcp
+S1_normal_run1,MQTT,597.352,33506,56.091,448.727,119,5.0451,0.49,,
+S1_normal_run1,CoAP,597.352,23166,38.781,310.249,120,5.0008,0.0024,,
+S1_normal_run1,HTTP,597.352,145405,243.416,1947.329,119,5.0408,0.036,,
+S1_normal_run2b,MQTT,595.84,33104,55.559,444.468,119,5.0433,0.4715,,
+S1_normal_run2b,CoAP,595.84,23160,38.87,310.956,120,5.0008,0.0003,,
+S1_normal_run2b,HTTP,595.84,145609,244.376,1955.009,119,5.0408,0.036,,
+S1_normal_run3,MQTT,595.594,32600,54.735,437.882,120,4.9999,0.0029,,
+S1_normal_run3,CoAP,595.594,23160,38.886,311.085,120,5.0008,0.0007,,
+S1_normal_run3,HTTP,595.594,145087,243.601,1948.805,119,5.0305,0.0107,,
