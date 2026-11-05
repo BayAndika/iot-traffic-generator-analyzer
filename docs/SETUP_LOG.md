@@ -218,6 +218,10 @@ ragoon ALL=(root) NOPASSWD: /usr/sbin/tcpdump
 - **Port mirror routed:** trafik ESP ke Pi dirutekan MikroTik. Dari uji Wireshark, paket ESP tetap terlihat di ether3, tetapi cakupannya hanya dianggap valid setelah pengecekan jumlah dan arah.
 - **Run 2 gagal** karena ESP#2 tidak mengirim (lease sempat hilang). Run 2b diulang setelah lease static dan ESP#2 terbukti mengirim.
 - **Run 1 dan run 2b punya hasil Zeek identik** (2 / 1 / 119). Itu mungkin wajar, tapi belum dicek dengan timestamp pertama `conn.log` di folder `S1_normal_run2b`.
+- Run 1 sempat tercampur log Zeek run 2b (folder zeek). Sudah diperbaiki dengan Zeek ulang dari PCAP. Timestamp pertama 1793471318 sesuai runs.csv.
+- Ekstraksi fitur menghitung 3 run S1 valid (run 1, run 2b, run 3). Run 2 tidak dipakai.
+- ESP#1 mengirim SUBSCRIBE sekali per koneksi (run 1 dan run 2b). Dicatat sebagai perilaku firmware. Run 3 tidak tercatat di jendela S1.
+- Baseline S1 dibuat dari run_summary dan traffic_features (docs/BASELINE_S1.csv).
 
 ---
 
@@ -266,4 +270,4 @@ ragoon ALL=(root) NOPASSWD: /usr/sbin/tcpdump
 | S1_normal_run3 | S1_normal | 3 | Valid | Ya | 2171 | 2171 | 0 | 400 / 240 / 1531 | Waktu 04:46:07 sampai 04:56:32 (625 detik nyata). Hash `4e55b1df...` |
 | S2 sampai S6 | - | - | Belum | - | - | - | - | - | Menunggu generator anomali (Farel dan Aslan) |
 
-**Status S1:** tiga run valid (run 1, run 2b, run 3). Run 2 tetap disimpan sebagai catatan kegagalan.
+**Status S1:** 3 run valid, baseline dibuat. Run 2 tetap disimpan sebagai catatan kegagalan.
