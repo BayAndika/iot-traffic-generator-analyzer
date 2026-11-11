@@ -1,5 +1,16 @@
-pcap\
-zeel\
+# Data capture (besar, tidak masuk repo)
+pcap/
+zeek/
 *.pcap
 *.pcapng
-zeek/
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# Arsip binary
+*.7z
+
+# Environment
+venv/
+.env

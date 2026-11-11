@@ -152,6 +152,7 @@ ragoon ALL=(root) NOPASSWD: /usr/sbin/tcpdump
 - Pelabelan: S1 seluruhnya normal. Skenario S2 sampai S5 seluruhnya anomali. S6 dilabeli per jendela berdasarkan `metadata/anomali_interval.csv`.
 - Ukuran jendela pelabelan 5 detik, sama untuk semua run.
 - S2 tidak dijalankan sebelum generator burst diuji Farel dan pilot 2 menit menunjukkan kenaikan jumlah koneksi dibanding S1.
+- Keputusan skenario (disetujui Aslan, [06-11-2026]): durasi run 600 detik. S2 burst 20 aksi/detik selama 60 detik. S3 publish, S4 subscribe, S5 topic: [2] aksi/detik. S6 sesuai urutan 0-120 normal, 120-240 burst, 240-360 normal, 360-480 publish, 480-600 normal.
 
 ---
 
