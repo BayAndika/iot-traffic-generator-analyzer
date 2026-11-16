@@ -1,8 +1,8 @@
 # IoT-Traffic-Anomaly-
-Nama		: Ari Saputra
-          Asan hakeem
-          Bayu Andika Wibisono
-          Farel Tre Juandi
+Nama	: Ari Saputra
+          - Aslan hakeem
+          - Bayu Andika Wibisono
+          - Farel Tre Juandi
         
 
 Kelas		: TMJ 5A
