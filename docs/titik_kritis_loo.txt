@@ -1,0 +1,63 @@
+== Rentang k baik per lipatan ==
+          parameter protokol         lipatan  k_min  k_maks
+    connection_rate     CoAP  S1_normal_run1   1.00   20.00
+    connection_rate     CoAP S1_normal_run2b   1.00   20.00
+    connection_rate     CoAP  S1_normal_run3   1.00   20.00
+    connection_rate     HTTP  S1_normal_run1   1.05   20.00
+    connection_rate     HTTP S1_normal_run2b   1.05   20.00
+    connection_rate     HTTP  S1_normal_run3   1.05   20.00
+    connection_rate     MQTT  S1_normal_run1   1.00   20.00
+    connection_rate     MQTT S1_normal_run2b   1.00   20.00
+    connection_rate     MQTT  S1_normal_run3   1.00   20.00
+  frekuensi_request     CoAP  S1_normal_run1   1.00    3.75
+  frekuensi_request     CoAP S1_normal_run2b   1.00    3.75
+  frekuensi_request     CoAP  S1_normal_run3   1.00    3.75
+  frekuensi_request     HTTP  S1_normal_run1   1.05    4.00
+  frekuensi_request     HTTP S1_normal_run2b   1.05    4.00
+  frekuensi_request     HTTP  S1_normal_run3   1.05    4.00
+  frekuensi_request     MQTT  S1_normal_run1   1.05    2.00
+  frekuensi_request     MQTT S1_normal_run2b   1.05    2.00
+  frekuensi_request     MQTT  S1_normal_run3   1.05    2.00
+  subscribe_observe     CoAP  S1_normal_run1   1.00   20.00
+  subscribe_observe     CoAP S1_normal_run2b   1.00   20.00
+  subscribe_observe     CoAP  S1_normal_run3   1.00   20.00
+  subscribe_observe     MQTT  S1_normal_run1   1.00   20.00
+  subscribe_observe     MQTT S1_normal_run2b   1.00   20.00
+  subscribe_observe     MQTT  S1_normal_run3   1.00   20.00
+topic_resource_unik     CoAP  S1_normal_run1   1.00    1.75
+topic_resource_unik     CoAP S1_normal_run2b   1.00    1.75
+topic_resource_unik     CoAP  S1_normal_run3   1.00    1.75
+topic_resource_unik     HTTP  S1_normal_run1   1.00    3.75
+topic_resource_unik     HTTP S1_normal_run2b   1.00    3.75
+topic_resource_unik     HTTP  S1_normal_run3   1.00    3.75
+topic_resource_unik     MQTT  S1_normal_run1   1.00    2.75
+topic_resource_unik     MQTT S1_normal_run2b   1.00    2.75
+topic_resource_unik     MQTT  S1_normal_run3   1.00    2.75
+
+== Apakah k = 2,0 baik di ketiga lipatan? ==
+connection_rate        CoAP   2x masuk semua lipatan: True   {'S1_normal_run1': True, 'S1_normal_run2b': True, 'S1_normal_run3': True}
+connection_rate        HTTP   2x masuk semua lipatan: True   {'S1_normal_run1': True, 'S1_normal_run2b': True, 'S1_normal_run3': True}
+connection_rate        MQTT   2x masuk semua lipatan: True   {'S1_normal_run1': True, 'S1_normal_run2b': True, 'S1_normal_run3': True}
+frekuensi_request      CoAP   2x masuk semua lipatan: True   {'S1_normal_run1': True, 'S1_normal_run2b': True, 'S1_normal_run3': True}
+frekuensi_request      HTTP   2x masuk semua lipatan: True   {'S1_normal_run1': True, 'S1_normal_run2b': True, 'S1_normal_run3': True}
+frekuensi_request      MQTT   2x masuk semua lipatan: True   {'S1_normal_run1': True, 'S1_normal_run2b': True, 'S1_normal_run3': True}
+subscribe_observe      CoAP   2x masuk semua lipatan: True   {'S1_normal_run1': True, 'S1_normal_run2b': True, 'S1_normal_run3': True}
+subscribe_observe      MQTT   2x masuk semua lipatan: True   {'S1_normal_run1': True, 'S1_normal_run2b': True, 'S1_normal_run3': True}
+topic_resource_unik    CoAP   2x masuk semua lipatan: False   {'S1_normal_run1': False, 'S1_normal_run2b': False, 'S1_normal_run3': False}
+topic_resource_unik    HTTP   2x masuk semua lipatan: True   {'S1_normal_run1': True, 'S1_normal_run2b': True, 'S1_normal_run3': True}
+topic_resource_unik    MQTT   2x masuk semua lipatan: True   {'S1_normal_run1': True, 'S1_normal_run2b': True, 'S1_normal_run3': True}
+
+== Baseline per lipatan (MQTT) ==
+        lipatan           parameter  baseline
+ S1_normal_run1     connection_rate   0.00250
+ S1_normal_run1   frekuensi_request   0.19917
+ S1_normal_run1   subscribe_observe   0.00417
+ S1_normal_run1 topic_resource_unik   1.00000
+S1_normal_run2b     connection_rate   0.00250
+S1_normal_run2b   frekuensi_request   0.19917
+S1_normal_run2b   subscribe_observe   0.00417
+S1_normal_run2b topic_resource_unik   1.00000
+ S1_normal_run3     connection_rate   0.00333
+ S1_normal_run3   frekuensi_request   0.19833
+ S1_normal_run3   subscribe_observe   0.00833
+ S1_normal_run3 topic_resource_unik   1.00000
