@@ -1,0 +1,28 @@
+rate,protokol,run_id,TPR,FPR,catatan
+10,CoAP,uji_S2_rate10_run1,,,tanpa jendela anomali
+10,HTTP,uji_S2_rate10_run1,,,tanpa jendela anomali
+10,MQTT,uji_S2_rate10_run1,1.0,1.0,
+10,CoAP,uji_S2_rate10_run2,,,tanpa jendela anomali
+10,HTTP,uji_S2_rate10_run2,,,tanpa jendela anomali
+10,MQTT,uji_S2_rate10_run2,1.0,1.0,
+10,CoAP,uji_S2_rate10_run3,,,tanpa jendela anomali
+10,HTTP,uji_S2_rate10_run3,,,tanpa jendela anomali
+10,MQTT,uji_S2_rate10_run3,1.0,1.0,
+3,CoAP,uji_S2_rate3_run1b,,,tanpa jendela anomali
+3,HTTP,uji_S2_rate3_run1b,,,tanpa jendela anomali
+3,MQTT,uji_S2_rate3_run1b,1.0,1.0,
+3,CoAP,uji_S2_rate3_run2,,,tanpa jendela anomali
+3,HTTP,uji_S2_rate3_run2,,,tanpa jendela anomali
+3,MQTT,uji_S2_rate3_run2,1.0,1.0,
+3,CoAP,uji_S2_rate3_run3,,,tanpa jendela anomali
+3,HTTP,uji_S2_rate3_run3,,,tanpa jendela anomali
+3,MQTT,uji_S2_rate3_run3,1.0,1.0,
+5,CoAP,uji_S2_rate5_run1,,,tanpa jendela anomali
+5,HTTP,uji_S2_rate5_run1,,,tanpa jendela anomali
+5,MQTT,uji_S2_rate5_run1,1.0,1.0,
+5,CoAP,uji_S2_rate5_run2,,,tanpa jendela anomali
+5,HTTP,uji_S2_rate5_run2,,,tanpa jendela anomali
+5,MQTT,uji_S2_rate5_run2,1.0,1.0,
+5,CoAP,uji_S2_rate5_run3,,,tanpa jendela anomali
+5,HTTP,uji_S2_rate5_run3,,,tanpa jendela anomali
+5,MQTT,uji_S2_rate5_run3,1.0,1.0,

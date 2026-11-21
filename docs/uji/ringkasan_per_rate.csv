@@ -1,0 +1,4 @@
+rate,protokol,TPR_rata,TPR_min,TPR_maks,FPR_rata,jumlah_run,status
+3,MQTT,1.0,1.0,1.0,1.0,3,terbaca
+5,MQTT,1.0,1.0,1.0,1.0,3,terbaca
+10,MQTT,1.0,1.0,1.0,1.0,3,terbaca

@@ -1,0 +1,10 @@
+run_id,protokol,mulai,selesai,skenario_anomali
+uji_S2_rate3_run1b,mqtt,2026-11-21T14:16:55+07:00,2026-11-21T14:17:55+07:00,burst
+uji_S2_rate3_run2,mqtt,2026-11-21T14:33:51+07:00,2026-11-21T14:34:51+07:00,burst
+uji_S2_rate3_run3,mqtt,2026-11-21T14:46:20+07:00,2026-11-21T14:47:20+07:00,burst
+uji_S2_rate5_run1,mqtt,2026-11-21T14:59:04+07:00,2026-11-21T15:00:04+07:00,burst
+uji_S2_rate5_run2,mqtt,2026-11-21T15:11:18+07:00,2026-11-21T15:12:18+07:00,burst
+uji_S2_rate5_run3,mqtt,2026-11-21T15:56:52+07:00,2026-11-21T15:57:52+07:00,burst
+uji_S2_rate10_run1,mqtt,2026-11-21T16:09:36+07:00,2026-11-21T16:10:36+07:00,burst
+uji_S2_rate10_run2,mqtt,2026-11-21T16:21:37+07:00,2026-11-21T16:22:37+07:00,burst
+uji_S2_rate10_run3,mqtt,2026-11-21T16:35:00+07:00,2026-11-21T16:36:00+07:00,burst
