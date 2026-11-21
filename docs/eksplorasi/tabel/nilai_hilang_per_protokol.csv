@@ -1,0 +1,4 @@
+protokol,packet_rate,byte_rate,connection_rate,durasi_sesi_rata,frekuensi_request,subscribe_observe,topic_resource_unik,interval_mean,interval_std
+CoAP,0,0,0,2001,0,0,1,19,1836
+HTTP,0,0,0,16,0,0,16,34,1892
+MQTT,0,0,0,2018,0,0,4,22,2009

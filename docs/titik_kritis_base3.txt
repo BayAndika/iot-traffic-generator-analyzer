@@ -1,0 +1,27 @@
+Rentang k terbaik (Youden dalam 0,01 dari maksimum):
+          parameter protokol  k_min  k_maks  Youden_maks
+    connection_rate     CoAP    1.0   20.00        0.897
+    connection_rate     HTTP    1.0   20.00        0.906
+    connection_rate     MQTT    1.0   20.00        0.953
+  frekuensi_request     CoAP    1.0    3.75        0.906
+  frekuensi_request     HTTP    1.0    3.75        0.908
+  frekuensi_request     MQTT    1.0    1.75        0.937
+  subscribe_observe     CoAP    1.0   20.00        0.935
+  subscribe_observe     MQTT    1.0   20.00        0.903
+topic_resource_unik     CoAP    1.0    1.75        0.935
+topic_resource_unik     HTTP    1.0    3.75        0.908
+topic_resource_unik     MQTT    1.0    2.75        0.937
+
+Nilai pada k = 2,0:
+          parameter protokol     skenario   k   TPR   FPR  Youden
+    connection_rate     MQTT S2_connburst 2.0 0.972 0.019   0.953
+    connection_rate     CoAP S2_connburst 2.0 0.917 0.020   0.897
+    connection_rate     HTTP S2_connburst 2.0 0.917 0.011   0.906
+  frekuensi_request     MQTT    S3_pubreq 2.0 0.917 0.007   0.910
+  frekuensi_request     CoAP    S3_pubreq 2.0 0.917 0.011   0.906
+  frekuensi_request     HTTP    S3_pubreq 2.0 0.917 0.011   0.906
+  subscribe_observe     MQTT   S4_subpoll 2.0 0.917 0.014   0.903
+  subscribe_observe     CoAP   S4_subpoll 2.0 0.944 0.009   0.935
+topic_resource_unik     MQTT     S5_topic 2.0 0.944 0.007   0.937
+topic_resource_unik     CoAP     S5_topic 2.0 0.917 0.009   0.908
+topic_resource_unik     HTTP     S5_topic 2.0 0.917 0.009   0.908

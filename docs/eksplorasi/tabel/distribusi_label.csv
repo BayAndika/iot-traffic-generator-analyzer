@@ -1,0 +1,7 @@
+skenario,anomali,normal
+S1_normal,0,1079
+S2_connburst,108,971
+S3_pubreq,108,971
+S4_subpoll,72,1000
+S5_topic,108,969
+S6_campuran,434,642
